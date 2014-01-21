@@ -1,0 +1,70 @@
+
+<form method="post" action="<?php global $CFG; echo $CFG->wwwroot . "/mod/mail/view.php"; ?>" enctype="multipart/form-data">
+<table>
+  <tr>
+    <td style="vertical-align: top; text-align: right; font-weight: bold;"><?php print_string('recipient', 'mail'); ?>:</td>
+    <td align="left">
+             <?php 
+               if(count($usermenu) == 1){
+               }
+                 if(count($form->recipients) < 1)
+                 {
+                   $recip = reset($form->recipients);
+                   choose_from_menu_multi($usermenu, 'recipients[]', '', '');
+                 }
+              else
+               {
+                $first = true;
+                $userlist = '';
+                
+                foreach($form->recipients as $recipient)
+                {
+                 
+                  if(!$first) {
+                      $userlist .= ', ';
+                  }
+                  $userlist .= '<a href="view.php?id='.$recipient->id.'&amp;course='.$course->id.'">'.fullname($recipient).'</a>';
+                  $first = false;
+                }
+                echo $userlist;
+              }
+              if (isset($err['recipient'])) formerr($err['recipient']);
+       ?>
+    </td>
+  </tr>
+  <tr>
+    <td style="vertical-align: top; text-align: right; font-weight: bold;"><?php print_string('subject', 'mail'); ?>:</td>
+    <td><input type="text" name="subject" size="90" value="<?php echo $form->subject; ?>" /> <?php if (isset($err['subject'])) formerr($err['subject']); ?></td>
+  </tr>
+  <tr>
+    <td style="vertical-align: top; text-align: right; font-weight: bold;"><?php print_string('message', 'mail'); ?>:</td>
+    <td>
+    <?php
+        print_textarea(($form->format == FORMAT_HTML), 10, 65, 630, 300, "message", $form->message);
+        if (isset($err['message'])) formerr($err['message']);
+    ?>
+    </td>
+  </tr>
+  <tr>
+  <td style="vertical-align: top; text-align: right; font-weight: bold;"> <?php print_string('attachment', 'mail'); ?></td>
+   <td>  <?php $maxbytes = get_max_upload_file_size($CFG->maxbytes, $course->maxbytes, 0); ?>
+    <input type="hidden" name="MAX_FILE_SIZE" value="<?php echo $maxbytes ?>" />
+    <input type="file" name="attachment" size="40"  />
+    </td></tr>
+  <tr>
+    <td colspan="2" style="text-align: center;"><p><input type="submit" value="<?php print_string('sendmessage', 'mail') ?>"></p></td>
+  </tr>
+</table>
+<p>
+<input type="hidden" name="id" value="<?php $id = required_param("id",PARAM_INT); echo $id?>" />
+<?php 
+foreach($form->recipients as $recipient) {
+    echo '<input type="hidden" name="recipients" value="'.$recipient->id.'" />';
+  }
+?>
+<input type="hidden" name="course" value="<?php echo $course->id?>" />
+<input type="hidden" name="format" value="<?php echo $form->format; ?>" />
+<input type="hidden" name="op" value="compose" />
+</p>
+</form>
+

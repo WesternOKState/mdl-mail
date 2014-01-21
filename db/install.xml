@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="mod/mail/db" VERSION="20120531" COMMENT="XMLDB file for Moodle mod/mail"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="mail" COMMENT="Default comment for mail, please edit me" NEXT="mail_text">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="course"/>
+        <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="Course mail activity belongs to" PREVIOUS="id" NEXT="name"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="name field for moodle instances" PREVIOUS="course" NEXT="intro"/>
+        <FIELD NAME="intro" TYPE="text" LENGTH="medium" NOTNULL="false" SEQUENCE="false" COMMENT="General introduction of the newmodule activity" PREVIOUS="name" NEXT="introformat"/>
+        <FIELD NAME="introformat" TYPE="int" LENGTH="4" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="Format of the intro field (MOODLE, HTML, MARKDOWN...)" PREVIOUS="intro" NEXT="timecreated"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" PREVIOUS="introformat" NEXT="timemodified"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="timecreated"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="course" UNIQUE="false" FIELDS="course"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="mail_text" COMMENT="mail_text table retrofitted from MySQL" PREVIOUS="mail" NEXT="mail_privmsgs">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="11" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="format"/>
+        <FIELD NAME="format" TYPE="int" LENGTH="4" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="id" NEXT="message"/>
+        <FIELD NAME="message" TYPE="text" LENGTH="small" NOTNULL="false" SEQUENCE="false" PREVIOUS="format"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="mail_privmsgs" COMMENT="mail_privmsgs table retrofitted from MySQL" PREVIOUS="mail_text" NEXT="mail_audit_trail">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="11" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="course"/>
+        <FIELD NAME="course" TYPE="int" LENGTH="11" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" PREVIOUS="id" NEXT="folder"/>
+        <FIELD NAME="folder" TYPE="int" LENGTH="11" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="course" NEXT="subject"/>
+        <FIELD NAME="subject" TYPE="char" LENGTH="255" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="folder" NEXT="fromuser"/>
+        <FIELD NAME="fromuser" TYPE="int" LENGTH="11" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="subject" NEXT="touser"/>
+        <FIELD NAME="touser" TYPE="int" LENGTH="11" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="fromuser" NEXT="textid"/>
+        <FIELD NAME="textid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="touser" NEXT="timesent"/>
+        <FIELD NAME="timesent" TYPE="int" LENGTH="11" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="textid" NEXT="isread"/>
+        <FIELD NAME="isread" TYPE="int" LENGTH="4" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="timesent" NEXT="attachment_filename"/>
+        <FIELD NAME="attachment_filename" TYPE="char" LENGTH="255" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="isread" NEXT="attachment_type"/>
+        <FIELD NAME="attachment_type" TYPE="char" LENGTH="600" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="attachment_filename" NEXT="attachment_data"/>
+        <FIELD NAME="attachment_data" TYPE="binary" LENGTH="medium" NOTNULL="false" SEQUENCE="false" PREVIOUS="attachment_type"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="fromuser" UNIQUE="false" FIELDS="fromuser" NEXT="touser"/>
+        <INDEX NAME="touser" UNIQUE="false" FIELDS="touser" PREVIOUS="fromuser"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="mail_audit_trail" COMMENT="mail_audit_trail table retrofitted from MySQL" PREVIOUS="mail_privmsgs">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="11" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="timesent"/>
+        <FIELD NAME="timesent" TYPE="int" LENGTH="11" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="id" NEXT="remote_host"/>
+        <FIELD NAME="remote_host" TYPE="char" LENGTH="17" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="timesent" NEXT="touser"/>
+        <FIELD NAME="touser" TYPE="char" LENGTH="255" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="remote_host" NEXT="fromuser"/>
+        <FIELD NAME="fromuser" TYPE="char" LENGTH="255" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="touser" NEXT="subject"/>
+        <FIELD NAME="subject" TYPE="char" LENGTH="255" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="fromuser" NEXT="messagetext"/>
+        <FIELD NAME="messagetext" TYPE="text" LENGTH="small" NOTNULL="false" SEQUENCE="false" PREVIOUS="subject" NEXT="attachment_filename"/>
+        <FIELD NAME="attachment_filename" TYPE="char" LENGTH="255" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="messagetext" NEXT="attachment_type"/>
+        <FIELD NAME="attachment_type" TYPE="char" LENGTH="600" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="attachment_filename" NEXT="attachment_data"/>
+        <FIELD NAME="attachment_data" TYPE="binary" LENGTH="medium" NOTNULL="false" SEQUENCE="false" PREVIOUS="attachment_type"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+  </TABLES>
+</XMLDB>
