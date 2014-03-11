@@ -22,27 +22,31 @@ $CFG->debug = 6143;
 $CFG->debugdisplay =1;
 
 /// Print the main part of the page
-$id=optional_param("id");
-$op=optional_param("op", 'list');
+$id=optional_param("id",0,PARAM_INT);
+$mid=optional_param("mid",0,PARAM_INT);
+$op=optional_param("op", 'list',PARAM_ALPHANUM);
+$context = get_context_instance(CONTEXT_MODULE, $id);
 
-if(isadmin())
+if ($id) {
+      $cm         = get_coursemodule_from_id('mail', $id, 0, false, MUST_EXIST);
+      $course     = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
+      $mail  = $DB->get_record('mail', array('id' => $cm->instance), '*', MUST_EXIST);
+    } else {
+        error('You must specify a course_module ID or an instance ID');
+    }
+
+if(has_capability('mod/mail:audit', $context))
 {
   switch($op)
   {
   case 'list':
   
    if ($id) {
-        if (! $cm = get_record("course_modules", "id", $id)) {
-            error("Course Module ID was incorrect");
-        }
-    
-        if (! $course = get_record("course", "id", $cm->course)) {
-            error("Course is misconfigured");
-        }
-    
-        if (! $mail = get_record("mail", "id", $cm->instance)) {
-            error("Course module is incorrect");
-        }
+      $cm         = get_coursemodule_from_id('mail', $id, 0, false, MUST_EXIST);
+      $course     = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
+      $mail  = $DB->get_record('mail', array('id' => $cm->instance), '*', MUST_EXIST);
+    } else {
+        error('You must specify a course_module ID or an instance ID');
     }
     require_login($course->id);
 
@@ -66,15 +70,16 @@ if(isadmin())
   
   
   
-     $messages = get_records("mail_audit_trail");
-     die("REPRESSED");
+     $messages = $DB->get_records("mail_audit_trail");
+     //die("REPRESSED");
      $table = &New stdClass or die("Help help");
+     $table = new html_table();
      $table->head = array(get_string('sender','mail'), get_string('recipient', 'mail'),get_string('subject', 'mail'), get_string('senton', 'mail'),'&nbsp;') or die("Help help");
      $table->width = '100%';
      $table->size = array('20%', '20%', '20%', '25%','15%');
      $table->align = array('LEFT', 'CENTER', 'CENTER', 'CENTER');
      $table->data = array();
-     var_dump($messages);
+     //var_dump($messages);
      foreach ($messages as $message)
      {
     
@@ -87,28 +92,18 @@ if(isadmin())
      $table->data[] = array($message->fromuser, $message->touser, $message->subject, userdate($message->timesent),
                       "<form action=\"audit.php\"><input value=\"View Message\" type=\"Submit\">
                       <input type=\"hidden\" name=\"op\" value=\"view\">
-                      <input type=\"hidden\" name=\"id\" value=\"$message->id\"></form>");
+                      <input type=\"hidden\" name=\"id\" value=\"$id\">
+                      <input type=\"hidden\" name=\"mid\" value=\"$message->id\"></form>");
     
      }
-    var_dump($table);
-    print_table($table); 
+    echo html_writer::table($table);
+    //var_dump($table);
+    //print_table($table); 
+    echo $OUTPUT->footer();
   break;
   
   case 'view':
-  
-     if ($id) {
-        if (! $cm = get_record("course_modules", "id", $id)) {
-            error("Course Module ID was incorrect");
-        }
-    
-        if (! $course = get_record("course", "id", $cm->course)) {
-            error("Course is misconfigured");
-        }
-    
-     //   if (! $mail = get_record("mail", "id", $cm->instance)) {
-      //      error("Course module is incorrect");
-      //  }
-     }
+
     require_login($course->id);
 
     add_to_log($course->id, "mail", "view", "view.php?id=$cm->id", "$mail->id");
@@ -132,31 +127,35 @@ if(isadmin())
      
      
      
-     $message = get_record('mail_audit_trail','id',$id);
+     $message = $DB->get_record('mail_audit_trail',array('id'=>$mid));
      
-     echo '<p><table bgcolor="#ffffff" align="center"><tr><td colspan="2">Following message was received at '.userdate($message->timesent).'</td></tr><tr><td>';
-     echo 'From IP address:</td><td> '. $message->remote_host .'</td></tr><tr>';
+     echo '<p><table bgcolor="#ffffff" border=1 align="center"><tr><td colspan="2">Following message was received at '.userdate($message->timesent).'</td></tr><tr>';
+     echo '<td width=15%>From IP address:</td><td> '. $message->remote_host .'</td></tr><tr>';
      echo '<td>From:</td><td align="left">'. $message->fromuser .'</td></tr><tr>';
      echo '<td>To:</td><td align="left">'. $message->touser .'</td></tr><tr>';
      if($message->attachment_filename)
      {
-       echo "<td>Attachment:</td><td align=\"left\"><a href=\"audit.php?op=getit&id=$message->id\" target=\"_blank\">$message->attachment_filename</a> </td></tr><tr>";
+       echo "<td>Attachment:</td><td align=\"left\"><a href=\"audit.php?op=getit&mid=$message->id&id=$id\" target=\"_blank\">$message->attachment_filename</a> </td></tr><tr>";
      }
      echo '<td colspan="2">Message:</td></tr><tr>';
      echo '<td colspan="2">'. $message->messagetext .'</td></tr><tr>';
-     
+     echo "</tr></table>";
+     echo $OUTPUT->footer();
           
   
   break;
   
   case 'getit':
   
-     $message = get_record('mail_audit_trail','id',$id);
+     $message = $DB->get_record('mail_audit_trail',array('id'=>$mid));
      
      Header("Content-type: $message->attachment_type");
+     //Header("Content-type: application/octet-stream");
      header("Content-Disposition: attachment; filename=\"$message->attachment_filename\"");
-     echo $message->attachment_data;
-  
+     //header('Content-Transfer-Encoding: binary');
+     header('Content-Encoding: identity');
+     echo base64_decode($message->attachment_data);
+
   break;
   
   }
