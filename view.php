@@ -57,7 +57,7 @@ $context = get_context_instance(CONTEXT_MODULE, $cm->id);
     $PAGE->set_cacheable(true);
     $PAGE->set_button($auditbutton);
     echo $OUTPUT->header();
-    /*$navigation = build_navigation($auditbutton,$cm);
+     /*$navigation = build_navigation($auditbutton,$cm);
     
     print_header_simple(format_string($mail->name),"",$navigation,"","",true,"",navmenu($course,$cm));    
 */
