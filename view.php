@@ -31,6 +31,8 @@ require_login($course, true, $cm);
 $context = get_context_instance(CONTEXT_MODULE, $cm->id);
 
 /// Print the page header
+
+
 /*    if(isadmin())
       { 
         $auditbutton = "&nbsp;<input type=\"button\" value=\"Audit Messages\" onClick=javascript:window.location=\"audit.php?id=$cm->id\">";
@@ -39,9 +41,26 @@ $context = get_context_instance(CONTEXT_MODULE, $cm->id);
       $auditbutton = "";
       }
 */
-    $navigation = build_navigation('',$cm);
-    print_header_simple(format_string($mail->name),"",$navigation,"","",true,"",navmenu($course,$cm));    
 
+   if (has_capability('mod/mail:audit', $context)) 
+     { 
+        //$auditbutton = array(array('name'=>"Audit Messages",'link'=>"audit.php?id=$cm->id"));
+        $auditbutton = "&nbsp;<input type=\"button\" value=\"Audit Messages\" onClick=javascript:window.location=\"audit.php?id=$cm->id\">";        
+      }
+    else {
+      $auditbutton = "";
+    }
+    //$navigation = build_navigation('',$cm);
+    
+    $PAGE->set_title($title);
+    $PAGE->set_heading($heading);
+    $PAGE->set_cacheable(true);
+    $PAGE->set_button($auditbutton);
+    echo $OUTPUT->header();
+    /*$navigation = build_navigation($auditbutton,$cm);
+    
+    print_header_simple(format_string($mail->name),"",$navigation,"","",true,"",navmenu($course,$cm));    
+*/
     if ($course->category) {
         $navigation = "<A HREF=\"../../course/view.php?id=$course->id\">$course->shortname</A> ->";
     }

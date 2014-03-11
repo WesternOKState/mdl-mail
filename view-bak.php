@@ -31,7 +31,7 @@ require_login($course, true, $cm);
 $context = get_context_instance(CONTEXT_MODULE, $cm->id);
 
 /// Print the page header
-/*    if(isadmin())
+ /*   if(isadmin())
       { 
         $auditbutton = "&nbsp;<input type=\"button\" value=\"Audit Messages\" onClick=javascript:window.location=\"audit.php?id=$cm->id\">";
       }
