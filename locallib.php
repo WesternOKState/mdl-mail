@@ -204,8 +204,8 @@ function mail_mark_as_read($message) {
 }
 
 function mail_yesno($message, $vars = array()) {
-    global $THEME;
-    print_simple_box_start('center', '60%', $THEME->cellheading);
+    global $THEME,$OUTPUT,$PAGE;
+    $OUTPUT->box_start('center', '60%', $THEME->cellheading);
     echo '<p style="text-align: center; margin-top: 1em;"><strong>'.$message.'</strong></p>';
     echo '<form method="get" action="view.php">';
     echo '<p style="text-align: center;">';
@@ -223,7 +223,7 @@ function mail_yesno($message, $vars = array()) {
     echo '<input style="margin-left: 2em;" type="submit" name="no" value=" '.get_string('no').' " /> ';
     echo '</p>';
     echo '</form>';
-    print_simple_box_end();
+    $OUTPUT->box_end();
 }
 
 function mail_file_area_name($privmsgs) {

@@ -85,6 +85,22 @@ function xmldb_mail_upgrade($oldversion) {
         // mail savepoint reached
         upgrade_mod_savepoint(true, 2012053001, 'mail');
     }
+    
+        if ($oldversion < 2014031000) {
+
+        // Define field courseid to be added to mail_audit_trail.
+        $table = new xmldb_table('mail_audit_trail');
+        $field = new xmldb_field('courseid', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'attachment_data');
+
+        // Conditionally launch add field courseid.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Mail savepoint reached.
+        upgrade_mod_savepoint(true, 2014031000, 'mail');
+    }
+
 }
 ?>
 

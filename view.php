@@ -154,7 +154,7 @@ switch($op) {
     case 'delete':
         
         $message = required_param('msg',PARAM_INT);
-        redirect('view.php?id='.$id,"Deleting messages disabled temporarily",5);die();
+        //redirect('view.php?id='.$id,"Deleting messages disabled temporarily",5);die();
         if(isset($_REQUEST['no'])) {
             // Cancel delete, so we won't check for permissions or anything
             redirect('view.php?id='.$id);
@@ -440,6 +440,7 @@ switch($op) {
                        $auditmsg->attachment_data = $privmsg->attachment_data;
                         
                     }
+                    $auditmsg->courseid = $course->id;
 
                     if($DB->insert_record('mail_privmsgs', $privmsg)) {
                         ++$sentto;
