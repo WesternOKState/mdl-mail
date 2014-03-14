@@ -57,6 +57,8 @@ $string['nonewmessages'] = 'You have no new messages';
 $string['xnewmessages'] = 'You have <strong>{$a}</strong> new messages';
 $string['onenewmessage'] = 'You have <strong>1</strong> new message';
 $string['attachment'] = 'Attach File:<br>(optional)';
+$string['MailisDeletable'] = "Mail can be deleted?";
+$string['MailisDeletableDescription'] = "Can users delete email from their mailboxes? Y/N";
+$string['deletenotify'] = "Deleting of mail messages have been disabled";
 
-?>
 

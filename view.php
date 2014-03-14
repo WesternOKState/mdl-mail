@@ -82,7 +82,7 @@ $coursenumber = $course->id;
 //add_to_log($course->id, "user", "view", "view.php?id=$user->id&course=$course->id", "$user->id");
 
 require_login(0, false);
-
+$config = get_config("mail");
 //if (! $course = $DB->get_record("course", "id", $course) ) {
 //    error("No such course id");
 //}
@@ -154,7 +154,10 @@ switch($op) {
     case 'delete':
         
         $message = required_param('msg',PARAM_INT);
-        //redirect('view.php?id='.$id,"Deleting messages disabled temporarily",5);die();
+        if($config->MailisDeletable === "no"){
+           redirect('view.php?id='.$id, get_string('deletenotify','mail'),5);die();
+          
+        }
         if(isset($_REQUEST['no'])) {
             // Cancel delete, so we won't check for permissions or anything
             redirect('view.php?id='.$id);
