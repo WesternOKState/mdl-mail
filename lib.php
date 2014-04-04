@@ -196,6 +196,23 @@ function mail_print_recent_mod_activity($activity, $courseid, $detail, $modnames
 }
 
 /**
+ * function to be ran from mail_cron to get all unread emails
+ */
+function mail_cron_getUnread() {
+    global $DB;
+    $allUnread = $DB->get_records_sql("SELECT  id,touser,course,count(*) as number FROM {mail_privmsgs} where folder=0 and isread=0 group by touser,course;");
+    //need to clean up allUnread and combine multi class students to one listing in array
+    $codifiedArray = array();
+    
+    foreach($allUnread as $instance){
+        mtrace(json_encode($instance));
+    }
+    return $allUnread;    
+    
+}
+
+
+/**
  * Function to be run periodically according to the moodle cron
  * This function searches for things that need to be done, such
  * as sending out mail, toggling flags etc ...
@@ -204,6 +221,11 @@ function mail_print_recent_mod_activity($activity, $courseid, $detail, $modnames
  * @todo Finish documenting this function
  **/
 function mail_cron () {
+    global $CFG,$USER,$DB;
+    
+    $unreadMsgs = mail_cron_getUnread();
+    //mtrace(json_encode($unreadMsgs));
+    
     return true;
 }
 
