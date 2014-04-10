@@ -237,7 +237,23 @@ function mail_cron_email_for_user( stdClass  $user) {
     
 }
 
-
+function mail_instant_notify( stdClass $message) {
+    global $DB,$CFG;
+    
+    if($message) {
+        $userid = $message->fromuser;
+        $fromuserObj = $DB->get_record('user',array('id'=>$userid));
+        $touserObj = $DB->get_record('user',array('id'=>$message->touser));
+        $course = $DB->get_record('course',array('id'=>$message->course));
+        $textBody = "new message from ".fullname($fromuserObj)." in course: ".format_string($course->fullname);
+        $htmlBody = "<head></head><body><div>"
+                . "New message sent from ".fullname($fromuserObj)." in course "
+                . "<a href=\"".$CFG->wwwroot."/course/view.php?id=".$course->id."\">".format_string($course->fullname)."</a>"
+                . "</div</body>";
+        email_to_user($touserObj,$site->shortname,"NEW Course email!",$text,$html);
+    }
+    
+}
 
 
 /**
