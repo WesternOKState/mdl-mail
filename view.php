@@ -458,6 +458,7 @@ switch($op) {
                 echo $OUTPUT->heading('<p style="text-align: center;">'.get_string('messagesent', 'mail').'</p>');
                 echo $OUTPUT->continue_button('view.php?op=outbox&amp;course='.$course->id .'&amp;id=' . $id);
                 echo $OUTPUT->box_end();
+                mail_instant_notify($privmsg);
                 echo '</div></div>';
                 break;
             }
