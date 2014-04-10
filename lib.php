@@ -200,17 +200,54 @@ function mail_print_recent_mod_activity($activity, $courseid, $detail, $modnames
  */
 function mail_cron_getUnread() {
     global $DB;
-    $allUnread = $DB->get_records_sql("SELECT  id,touser,course,count(*) as number FROM {mail_privmsgs} where folder=0 and isread=0 group by touser,course;");
+    $allUnread = $DB->get_records_sql("SELECT id,touser FROM {mail_privmsgs} where folder=0 and isread=0 group by touser;");
     //need to clean up allUnread and combine multi class students to one listing in array
-    $codifiedArray = array();
     
-    foreach($allUnread as $instance){
-        mtrace(json_encode($instance));
-    }
+    
+    
+    
+    
     return $allUnread;    
     
 }
 
+/**
+ * function to get all unread counts for a specific user
+ * @param stdClass $user
+ */
+function mail_cron_email_for_user( stdClass  $user) {
+    global $DB,$CFG;
+    if($user){
+      $allUnread = $DB->get_records_sql("SELECT  course,count(*) as number FROM {mail_privmsgs} where folder=0 and isread=0 and touser=$user->id group by touser,course;");
+    }
+    $html ="<head></head><body id=email>";
+    $html .= "<div>You have unread email in the following class(es):<hr/>";
+    $text = "You have unread email in the following class(es):\n------------------------------";
+    foreach($allUnread as $coursemsgs) {
+        $course = $DB->get_record('course',array('id'=>$coursemsgs->course));
+        $courseName = format_string($course->fullname);
+        $html .= '<div><a target="_blank" href="'.$CFG->wwwroot.'/course/view.php?id='.$course->id.'">'
+                .$courseName.'</a>&nbsp; has '.$coursemsgs->number.'&nbsp; unread message(s) for you';
+        $text .="\n$courseName has $coursemsgs->number unread message(s) for you\n";
+    }
+    $html .= "</div></body>";
+    return array($html,$text);        
+    
+}
+
+/**
+ * function to be get text version of digest email
+ */
+function mail_cron_text_mail() {
+    
+}
+
+/**
+ * function to be get html version of digest email
+ */
+function mail_cron_html_mail() {
+    
+}
 
 /**
  * Function to be run periodically according to the moodle cron
@@ -222,10 +259,31 @@ function mail_cron_getUnread() {
  **/
 function mail_cron () {
     global $CFG,$USER,$DB;
-    
+    $site = get_site();
     $unreadMsgs = mail_cron_getUnread();
-    //mtrace(json_encode($unreadMsgs));
-    
+    $codifiedArray = array(array(array('course'=>0,'num'=>0)));
+    foreach($unreadMsgs as $instance){
+        echo "-------------\n";
+        mtrace(json_encode($instance));
+        echo "-------------\n";
+        $userid = $instance->touser;
+      
+       // $codifiedArray[$userid][] = array("course"=>$instance->course,"num"=>$instance->number);
+            
+        $userObj = $DB->get_record('user',array('id'=>$userid));
+        list($html,$text) = mail_cron_email_for_user($userObj);
+        //$courseObj =$DB->get_record('course',array('id'=>$instance->course));
+        
+        mtrace($html);sleep(1);
+        $mailresult = email_to_user($userObj,$site->shortname,"Unread Course email notification",$text,$html);
+        if(!$mailresult) {
+            mtrace("error $userObj->username");
+        }
+      
+            
+      
+     }
+     
     return true;
 }
 
