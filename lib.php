@@ -196,11 +196,13 @@ function mail_print_recent_mod_activity($activity, $courseid, $detail, $modnames
 }
 
 /**
- * function to be ran from mail_cron to get all unread emails
+ * function to be ran from mail_cron to get all unread emails from courses visible
  */
 function mail_cron_getUnread() {
     global $DB;
-    $allUnread = $DB->get_records_sql("SELECT id,touser FROM {mail_privmsgs} where folder=0 and isread=0 group by touser;");
+    
+    //$allUnread = $DB->get_records_sql("SELECT id,touser FROM {mail_privmsgs} where folder=0 and isread=0 group by touser;");
+    $allUnread = $DB->get_records_sql("SELECT p.id,touser FROM {mail_privmsgs} as p inner join {course} as t1 on course = t1.id where folder=0 and isread=0 and t1.visible = 1 group by touser;");
     //need to clean up allUnread and combine multi class students to one listing in array
     
     
@@ -220,7 +222,7 @@ function mail_cron_getUnread() {
 function mail_cron_email_for_user( stdClass  $user) {
     global $DB,$CFG;
     if($user){
-      $allUnread = $DB->get_records_sql("SELECT  course,count(*) as number FROM {mail_privmsgs} where folder=0 and isread=0 and touser=$user->id group by touser,course;");
+      $allUnread = $DB->get_records_sql("SELECT  course,count(*) as number FROM {mail_privmsgs} as p inner join {course} as t1 on course = t1.id where folder=0 and isread=0 and t1.visible = 1 and touser=$user->id group by touser,course;");
     }
     $html ="<head></head><body id=email>";
     $html .= "<div>You have unread email in the following class(es):<hr/>";
