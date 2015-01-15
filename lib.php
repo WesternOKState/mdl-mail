@@ -282,13 +282,15 @@ function mail_cron () {
         $userid = $instance->touser;
                        
         $userObj = $DB->get_record('user',array('id'=>$userid));
-        list($html,$text) = mail_cron_email_for_user($userObj);
+        if($userObj) {
+          list($html,$text) = mail_cron_email_for_user($userObj);
         //$courseObj =$DB->get_record('course',array('id'=>$instance->course));
         
        // mtrace($html);sleep(1);
-        $mailresult = email_to_user($userObj,$site->shortname,"Unread Course email notification",$text,$html);
-        if(!$mailresult) {
+           $mailresult = email_to_user($userObj,$site->shortname,"Unread Course email notification",$text,$html);
+           if(!$mailresult) {
             mtrace("error $userObj->username notification not sent");
+           }
         }
       
             
