@@ -118,7 +118,7 @@ function mail_print_message($messageid, $course) {
 
     echo '<p style="text-align: center;">';
     echo '<table style="width: 80%; margin: auto;" class="forumheaderlist">';
-    echo '<tr><td rowspan="2" style="background-color: '.$THEME->cellcontent2.'; width: 35px; vertical-align: top;">';
+    echo '<tr><td rowspan="2"  width: 35px; vertical-align: top;">';
         //$userpic = new moodle_user_picture();
         //$userpic->user = $sender->id;
         //$userpic->courseid = $course->id;
@@ -126,7 +126,7 @@ function mail_print_message($messageid, $course) {
         //print_user_picture($sender->id, $course->id, $sender->picture, false);
         echo $OUTPUT->user_picture($sender,array('courseid'=>$course->id));
 	echo '</td>';
-	echo "<td bgcolor=\"$THEME->cellheading2\" class=\"forumpostheadertopic\" width=\"100%\">";
+	echo "<td class=\"forumpostheadertopic\" width=\"100%\">";
 	echo "<p>";
     echo "<font size=3><b>$message->subject</b></font><br />";
     echo "<font size=2>";
@@ -135,6 +135,7 @@ function mail_print_message($messageid, $course) {
     $senderfullname = fullname($sender);
     //$recipientfullname = fullname($recipient, isteacher($course->id, $recipient->id));
     $recipientfullname = fullname($recipient);
+    $msg = new stdClass();
     $msg->sender = '<a href="'.$CFG->wwwroot.'/user/view.php?id='.$sender->id.'&amp;course='.$course->id.'">'.$senderfullname.'</a>';
     $msg->recipient = '<a href="'.$CFG->wwwroot.'/user/view.php?id='.$recipient->id.'&amp;course='.$course->id.'">'.$recipientfullname.'</a>';
     $msg->date = userdate($message->timesent);
@@ -403,8 +404,8 @@ function mail_message_folder($messageid, $user) {
     return false;
 }
 
-function mail_get_inbox($user = NULL) {
-        global $COURSE,$DB;
+function mail_get_inbox($user = NULL,$page=0,$perpage=30) {
+    global $COURSE,$DB;
 	if($user === NULL) {
 		global $USER, $COURSE;
 		if(!$USER->id) {
@@ -413,10 +414,51 @@ function mail_get_inbox($user = NULL) {
 		$user = $USER->id;
                 $course_id = $COURSE->id;
 	}
-	return $DB->get_records_select('mail_privmsgs', 'touser = '.$user.' AND course = '.$course_id.' AND folder = '.PRIVMSGS_FOLDER_INBOX,null,'timesent DESC');
+	return $DB->get_records_select('mail_privmsgs', 'touser = '.$user.' AND course = '.$course_id.' AND folder = '.PRIVMSGS_FOLDER_INBOX,null,'timesent DESC','*',$page*$perpage,$perpage);
 }
 
-function mail_get_outbox($user = NULL) {
+/**
+ * Gets total of messages in box
+ * @param string $box Must be in or out
+ * @param null $user
+ * @return int $size count of messages
+ */
+function mail_get_boxsize($box = "in",$user = NULL) {
+    global $COURSE,$DB;
+    $size = 0;
+    if($user === NULL) {
+        global $USER;
+        if(!$USER->id) {
+            return array();
+        }
+        $user = $USER->id;
+        $course_id = $COURSE->id;
+    }
+    switch($box){
+        case "in":
+            $size = $DB->count_records_select('mail_privmsgs', 'touser = '.$user.' AND course = '.$course_id.' AND folder = '.PRIVMSGS_FOLDER_INBOX);
+            break;
+        case "out":
+            $size = $DB->count_records_select('mail_privmsgs', 'fromuser = '.$user.' AND course = '.$course_id.' AND folder = '.PRIVMSGS_FOLDER_OUTBOX);
+            break;
+        default:
+            $size=0;
+            break;
+
+
+    }
+    return $size;
+}
+
+/**
+ * gets messages in user's outbox
+ * @param null $user
+ * @param int $page
+ * @param int $perpage
+ * @return array
+ */
+
+function mail_get_outbox($user = NULL,$page=0,$perpage=30) {
     global $DB;
 	if($user === NULL) {
 		global $USER, $COURSE;
@@ -426,7 +468,7 @@ function mail_get_outbox($user = NULL) {
 		$user = $USER->id;
                 $course_id = $COURSE->id;
 	}
-	return $DB->get_records_select('mail_privmsgs', 'fromuser = '.$user.' AND course = '.$course_id.' AND folder = '.PRIVMSGS_FOLDER_OUTBOX,null, 'timesent DESC');
+	return $DB->get_records_select('mail_privmsgs', 'fromuser = '.$user.' AND course = '.$course_id.' AND folder = '.PRIVMSGS_FOLDER_OUTBOX,null, 'timesent DESC','*',$page*$perpage,$perpage);
 }
 
 function mail_cache_getuser($id) {
