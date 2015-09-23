@@ -11,6 +11,8 @@
 
     $id = optional_param('id',0,PARAM_INT);    // Course Module ID, or
     $a = optional_param('a',0,PARAM_INT);     // mail ID
+    $page         = optional_param('page', 0, PARAM_INT);
+    $perpage      = optional_param('perpage', 30, PARAM_INT);        // how many per page
 
     if ($id) {
       $cm         = get_coursemodule_from_id('mail', $id, 0, false, MUST_EXIST);
@@ -52,10 +54,15 @@ $context = get_context_instance(CONTEXT_MODULE, $cm->id);
     }
     //$navigation = build_navigation('',$cm);
     
+    /*
+
+
     $PAGE->set_title($title);
     $PAGE->set_heading($heading);
+    */
     $PAGE->set_cacheable(true);
     $PAGE->set_button($auditbutton);
+    $PAGE->set_url('/mod/mail/view.php');
     echo $OUTPUT->header();
      /*$navigation = build_navigation($auditbutton,$cm);
     
@@ -113,11 +120,9 @@ $fullname = fullname($USER);
 $participants = get_string("participants");
 $privatemessages = get_string('privatemessages', 'mail');
 
-if ($usehtmleditor = can_use_html_editor()) {
-    $defaultformat = FORMAT_HTML;
-} else {
-    $defaultformat = FORMAT_MOODLE;
-}
+
+$defaultformat = FORMAT_HTML;
+
 
 //$message->attachment = isset($_FILES['attachment']) ? $_FILES['attachment'] : NULL;
 //echo "priv  $privmsgs->attachment<br> mess  $message->attachment<br> attach  $attachment<br>";
@@ -205,7 +210,7 @@ switch($op) {
     break;
 
     case 'read':
-        $m_id = optional_param('message',0 ,PARAM_INTEGER);
+        $m_id = optional_param('message',0 ,PARAM_INT);
         $message = $DB->get_record('mail_privmsgs', array('id'=>$m_id),"id");
         //var_export($message);
         if($message === false) {
@@ -252,13 +257,18 @@ switch($op) {
 
 
     case 'outbox':
-        $messages = mail_get_outbox();
+        $messages = mail_get_outbox(null,$page,$perpage);
+        $totalmessages = mail_get_boxsize("out");
         if($messages === false) {
             echo $OUTPUT->box_start('center', $width);
             echo $OUTPUT->heading('<p style="text-align: center;">'.get_string('nomessages', 'mail').'</p>');
             echo $OUTPUT->box_end();
         }
         else {
+            $baseurl = new moodle_url("/mod/mail/view.php",array('id'=>$id,'op'=>$op,'page'=>$page,'perpage'=> $perpage));
+            echo $OUTPUT->box_start();
+            echo $OUTPUT->paging_bar($totalmessages,$page,$perpage,$baseurl);
+            echo $OUTPUT->box_end();
             $table = new html_table();
             $table->head = array(get_string('subject', 'mail'), get_string('recipient', 'mail'), get_string('senton', 'mail'), '&nbsp;');
             $table->width = $width;
@@ -267,11 +277,11 @@ switch($op) {
             $table->data = array();
             foreach($messages as $message) {
                 $user = mail_cache_getuser($message->touser);
-		$paperclipimg = '<img src="'.$CFG->wwwroot.'/pix/spacer.gif" width="11px">';
-		if($message->attachment_filename)
-		   {
-		     $paperclipimg = '<img src="'.$CFG->wwwroot.'/mod/mail/paperclip.png">';
-		   }  
+		        $paperclipimg = '<img src="'.$CFG->wwwroot.'/pix/spacer.gif" width="11px">';
+		        if($message->attachment_filename)
+                {
+		            $paperclipimg = '<img src="'.$CFG->wwwroot.'/mod/mail/paperclip.png">';
+                }
                 $table->data[] = array($paperclipimg.'&nbsp;<a href="view.php?id=' . $id . '&amp;course='.$course->id.'&amp;op=read&amp;message='.$message->id.'">'.$message->subject.'</a>',
                                        '<a href="view.php?course='.$course->id.'&amp;id='.$id.'&amp;op=compose&amp;userid='.$user->id.'">'.fullname($user).'</a>',
                                        userdate($message->timesent),
@@ -289,11 +299,16 @@ switch($op) {
             echo '</td>';
             echo '</tr></table></div>';
             echo '</form>';
+            echo $OUTPUT->box_start();
+            echo $OUTPUT->paging_bar($totalmessages,$page,$perpage,$baseurl);
+            echo $OUTPUT->box_end();
         }
     break;
 
     case 'inbox':
-        $messages = mail_get_inbox();
+        $messages = mail_get_inbox(null,$page,$perpage);
+        $totalmessages = mail_get_boxsize("in");
+        ;
         //var_export($messages);
         if($messages === false) {
             echo $OUTPUT->box_start('center', $width);
@@ -301,6 +316,10 @@ switch($op) {
             echo $OUTPUT->box_end();
         }
         else {
+            $baseurl = new moodle_url("/mod/mail/view.php",array('id'=>$id,'op'=>$op,'page'=>$page,'perpage'=> $perpage));
+            echo $OUTPUT->box_start();
+            echo $OUTPUT->paging_bar($totalmessages,$page,$perpage,$baseurl);
+            echo $OUTPUT->box_end();
             $table = new html_table();
             $table->head = array(get_string('subject', 'mail'), get_string('sender', 'mail'), get_string('senton', 'mail'), '&nbsp;');
             $table->width = $width;
@@ -336,6 +355,10 @@ switch($op) {
             echo '</td>';
             echo '</tr></table></div>';
             echo '</form>';
+
+            echo $OUTPUT->box_start();
+            echo $OUTPUT->paging_bar($totalmessages,$page,$perpage,$baseurl);
+            echo $OUTPUT->box_end();
         }
 
     break;
