@@ -308,7 +308,7 @@ switch($op) {
     case 'inbox':
         $messages = mail_get_inbox(null,$page,$perpage);
         $totalmessages = mail_get_boxsize("in");
-        ;
+
         //var_export($messages);
         if($messages === false) {
             echo $OUTPUT->box_start('center', $width);
@@ -388,6 +388,7 @@ switch($op) {
         $form->message = '';
         $form->recipients = array($sender);
         $form->format = $defaultformat;
+        mail_print_message($message,$course);
         echo '<div style="text-align: center;"><div style="width: '.$width.'; margin: auto;">';
         mail_print_compose($course, $form, array());
         echo '</div></div>';
