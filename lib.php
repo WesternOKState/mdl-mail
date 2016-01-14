@@ -387,8 +387,19 @@ function mail_grade_item_update(stdClass $mail) {
     $item = array();
     $item['itemname'] = clean_param($mail->name, PARAM_NOTAGS);
     $item['gradetype'] = GRADE_TYPE_VALUE;
-    $item['grademax']  = $mail->grade;
-    $item['grademin']  = 0;
+   if ($mail->grade > 0) {
+        $item['gradetype'] = GRADE_TYPE_VALUE;
+        $item['grademax']  = $mail->grade;
+        $item['grademin']  = 0;
+    } else if ($mail->grade < 0) {
+        $item['gradetype'] = GRADE_TYPE_SCALE;
+        $item['scaleid']   = -$mail->grade;
+    } else {
+        $item['gradetype'] = GRADE_TYPE_NONE;
+    }
+    if ($reset) {
+        $item['reset'] = true;
+    }
 
     grade_update('mod/mail', $mail->course, 'mod', 'mail', $mail->id, 0, null, $item);
 }
