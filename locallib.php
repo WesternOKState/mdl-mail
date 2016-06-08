@@ -171,7 +171,7 @@ function mail_print_message($messageid, $course) {
 }
 
 function mail_print_compose($course, $form, $err) {
-    global $USER;
+    global $USER,$OUTPUT;
     $context = get_context_instance(CONTEXT_COURSE, $course->id);
     if(has_capability("mod/mail:teacher",$context))
      {
@@ -190,7 +190,7 @@ function mail_print_compose($course, $form, $err) {
     }
     //print_side_block_start(get_string('newmessage', 'mail'), '100%');
     //echo "ffgg";
-    //var_export($usermenu);
+    //var_export($err);
     include('mail.html');
     //print_side_block_end();
 }
