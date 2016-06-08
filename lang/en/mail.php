@@ -53,6 +53,7 @@ $string['errornosubject'] = 'You must specify a subject';
 $string['errornomessage'] = 'You must write a message';
 $string['errorbadrecipient'] = 'Invalid recipient';
 $string['errornorecipient'] = 'No recipient selected';
+$string['errorfiletoobig'] = 'File is too large';
 $string['nonewmessages'] = 'You have no new messages';
 $string['xnewmessages'] = 'You have <strong>{$a}</strong> new messages';
 $string['onenewmessage'] = 'You have <strong>1</strong> new message';

@@ -402,12 +402,17 @@ switch($op) {
 
             // Check for errors
 
+
             if(empty($message->subject)) {
                 $err['subject'] = get_string('errornosubject', 'mail');
             }
             if(empty($message->message)) {
                 $err['message'] = get_string('errornomessage', 'mail');
             }
+	    if($attachment['error'] == 2) {
+		$err['filetoobig'] = get_string('errorfiletoobig','mail');
+            }
+//	var_export($attachment); var_export($course->maxbytes); var_export($err);
             if($recip)
             {
             	foreach($recip as $mailgetters){
@@ -453,6 +458,7 @@ switch($op) {
                     $privmsg->folder = PRIVMSGS_FOLDER_INBOX;
                     $privmsg->touser = $recipient->id;
                     $auditmsg->touser = fullname($recipient);
+
 
                     if(($attachment['size'])>0) 
                     {

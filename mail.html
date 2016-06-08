@@ -28,7 +28,7 @@
                 }
                 echo $userlist;
               }
-              if (isset($err['recipient'])) formerr($err['recipient']);
+              if (isset($err['recipient'])) echo $OUTPUT->error_text($err['recipient']);
        ?>
     </td>
   </tr>
@@ -41,16 +41,23 @@
     <td>
     <?php
         print_textarea(($form->format == FORMAT_HTML), 10, 65, 630, 300, "message", $form->message);
-        if (isset($err['message'])) formerr($err['message']);
+        if (isset($err['message'])) echo $OUTPUT->error_text($err['message']);
     ?>
     </td>
   </tr>
   <tr>
   <td style="vertical-align: top; text-align: right; font-weight: bold;"> <?php print_string('attachment', 'mail'); ?></td>
-   <td>  <?php $maxbytes = get_max_upload_file_size($CFG->maxbytes, $course->maxbytes, 0); ?>
+   <td style="text-align:left">  <?php $maxbytes = get_max_upload_file_size($CFG->maxbytes, $course->maxbytes, 0); ?>
     <input type="hidden" name="MAX_FILE_SIZE" value="<?php echo $maxbytes ?>" />
     <input type="file" name="attachment" size="40"  />
-    </td></tr>
+    </td>
+     <td style="text-align: left;">Max Size: <?php echo $maxbytes/1048576; echo " MB";?></td>
+    <?php
+      echo "<tr><td colspan=99>";
+      if (isset($err['filetoobig'])) echo $OUTPUT->error_text($err['filetoobig']);
+      echo "</td></tr>";
+    ?>
+  </tr>
   <tr>
     <td colspan="2" style="text-align: center;"><p><input type="submit" value="<?php print_string('sendmessage', 'mail') ?>"></p></td>
   </tr>
