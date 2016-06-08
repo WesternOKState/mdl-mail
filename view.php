@@ -128,7 +128,7 @@ $defaultformat = FORMAT_HTML;
 //echo "priv  $privmsgs->attachment<br> mess  $message->attachment<br> attach  $attachment<br>";
 $width = '90%';
 
-$tabs = &New stdClass;
+$tabs = new stdClass();
 $tabs->names = array(get_string('inbox', 'mail'), get_string('outbox', 'mail'), get_string('compose', 'mail'));
 $tabs->urls = array("view.php?id=" .$id . "&amp;op=inbox",
                     "view.php?id=" . $id . "&amp;op=outbox",
