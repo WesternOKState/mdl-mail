@@ -103,7 +103,7 @@ function mail_print_message($messageid, $course) {
     //var_export($message);
     $text = $DB->get_record('mail_text', array('id'=>$message->textid));
     //var_export($text);
-    $options = new stdClass;
+    $options = new stdClass();
     $options->filter=true;
     $output = format_text($text->message,$text->format,$options,$course->id);
     if($text === false) {
