@@ -128,7 +128,7 @@ $defaultformat = FORMAT_HTML;
 //echo "priv  $privmsgs->attachment<br> mess  $message->attachment<br> attach  $attachment<br>";
 $width = '90%';
 
-$tabs = &New stdClass;
+$tabs = new stdClass();
 $tabs->names = array(get_string('inbox', 'mail'), get_string('outbox', 'mail'), get_string('compose', 'mail'));
 $tabs->urls = array("view.php?id=" .$id . "&amp;op=inbox",
                     "view.php?id=" . $id . "&amp;op=outbox",
@@ -383,7 +383,7 @@ switch($op) {
             error('You cannot reply to yourself');
         }
 
-        $form = &New stdClass;
+        $form = new stdClass();
         $form->subject = get_string('re', 'mail').$message->subject;
         $form->message = '';
         $form->recipients = array($sender);
@@ -430,7 +430,7 @@ switch($op) {
             	//var_export($_REQUEST['recipients']);	die;
 
             if(empty($err)) { //NO Errors
-                $text = &New stdClass;
+                $text = new stdClass();
                 $text->message = clean_text($message->message, $message->format);
                 $text->format = $message->format;
                 $text->id = $DB->insert_record('mail_text', $text, true);
@@ -439,13 +439,13 @@ switch($op) {
                     error('Could not insert message into the database');
                 }
 
-                $privmsg = &New stdClass;
+                $privmsg = new stdClass();
                 $privmsg->subject = clean_text($message->subject);
                 $privmsg->textid = $text->id;
                 $privmsg->fromuser = $USER->id;
                 $privmsg->timesent = time();
                 $privmsg->course = $course->id;
-                $auditmsg = &New stdClass;
+                $auditmsg = new stdClass();
                 
                 $auditmsg->fromuser = fullname($USER);
                 $auditmsg->subject = clean_text($message->subject);
@@ -500,7 +500,7 @@ switch($op) {
         }
         else {
             // No data submitted
-            $form = &New stdClass;
+            $form = new stdClass();
             $form->subject = '';
             $form->message = '';
             $form->recipients = $recipients;

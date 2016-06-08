@@ -72,7 +72,7 @@ if(has_capability('mod/mail:audit', $context))
   
      $messages = $DB->get_records("mail_audit_trail",array("courseid"=>$course->id));
      //var_export($course); //die("REPRESSED");
-     $table = &New stdClass or die("Help help");
+     $table = new stdClass() or die("Help help");
      $table = new html_table();
      $table->head = array(get_string('sender','mail'), get_string('recipient', 'mail'),get_string('subject', 'mail'), get_string('senton', 'mail'),'&nbsp;') or die("Help help");
      $table->width = '100%';
