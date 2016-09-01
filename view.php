@@ -23,7 +23,7 @@
          $course     = $DB->get_record('course', array('id' => $mail->course), '*', MUST_EXIST);
          $cm         = get_coursemodule_from_instance('mail', $mail->id, $course->id, false, MUST_EXIST);
     } else {
-        error('You must specify a course_module ID or an instance ID');
+        print_error('You must specify a course_module ID or an instance ID');
     }
 
 require_login($course, true, $cm);
@@ -126,8 +126,8 @@ $defaultformat = FORMAT_HTML;
 
 //$message->attachment = isset($_FILES['attachment']) ? $_FILES['attachment'] : NULL;
 //echo "priv  $privmsgs->attachment<br> mess  $message->attachment<br> attach  $attachment<br>";
-$width = '90%';
 
+$width = '90%';
 $tabs = new stdClass();
 $tabs->names = array(get_string('inbox', 'mail'), get_string('outbox', 'mail'), get_string('compose', 'mail'));
 $tabs->urls = array("view.php?id=" .$id . "&amp;op=inbox",
@@ -219,7 +219,8 @@ switch($op) {
 
         $folder = mail_message_folder($message, $USER);
         if($folder === false) {
-            error('Access denied');
+            print_error('Access denied');
+
         }
 
        
@@ -366,21 +367,21 @@ switch($op) {
     case 'reply':
         $msg = optional_param('msg', 0, PARAM_INT);
         if(!$message = $DB->get_record('mail_privmsgs', array('id'=>$msg))) {
-            error('Invalid message id');
+            print_error('Invalid message id');
         }
 
         $folder = mail_message_folder($message, $USER);
 
         if($folder !== PRIVMSGS_FOLDER_INBOX) {
-            error('Access denied');
+            print_error('Access denied');
         }
 
         
         if(($sender = $DB->get_record('user', array('id'=>$message->fromuser))) === false) {
-            error('Invalid sender ID');
+            print_error('Invalid sender ID');
         }
         else if($sender->id == $USER->id) {
-            error('You cannot reply to yourself');
+            print_error('You cannot reply to yourself');
         }
 
         $form = new stdClass();
@@ -436,7 +437,7 @@ switch($op) {
                 $text->id = $DB->insert_record('mail_text', $text, true);
 
                 if($text->id === false) {
-                    error('Could not insert message into the database');
+                    print_error('Could not insert message into the database');
                 }
 
                 $privmsg = new stdClass();
@@ -466,7 +467,7 @@ switch($op) {
                                                                   
                       if(!(list ($privmsg->attachment_filename,$privmsg->attachment_data,$privmsg->attachment_type) = mail_add_attachment_sql($privmsg,$newfile)))
                         {
-                          error("no attachment saved");
+                          print_error("no attachment saved");
                         }
                        $auditmsg->attachment_filename = $privmsg->attachment_filename;
                        $auditmsg->attachment_type = $privmsg->attachment_type;                                  
@@ -510,7 +511,7 @@ switch($op) {
         echo '</div></div>';
     break;
     default:
-        error('Unknown operation');
+        print_error('Unknown operation');
     break;
 }
 /// Finish the page
