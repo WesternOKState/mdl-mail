@@ -32,7 +32,7 @@ if ($id) {
       $course     = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
       $mail  = $DB->get_record('mail', array('id' => $cm->instance), '*', MUST_EXIST);
     } else {
-        error('You must specify a course_module ID or an instance ID');
+        print_error('You must specify a course_module ID or an instance ID');
     }
 
 if(has_capability('mod/mail:audit', $context))
@@ -46,7 +46,7 @@ if(has_capability('mod/mail:audit', $context))
       $course     = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
       $mail  = $DB->get_record('mail', array('id' => $cm->instance), '*', MUST_EXIST);
     } else {
-        error('You must specify a course_module ID or an instance ID');
+        print_error('You must specify a course_module ID or an instance ID');
     }
     require_login($course->id);
 
@@ -60,11 +60,14 @@ if(has_capability('mod/mail:audit', $context))
 
     $strmails = get_string("modulenameplural", "mail");
     $strmail  = get_string("modulename", "mail");
-
-   print_header("Mail: Audit", "Auditing Messages",
+    $PAGE->set_cacheable(false);
+    $PAGE->set_url('/mod/mail/audit.php');
+    echo $OUTPUT->header();
+   /*print_header("Mail: Audit", "Auditing Messages",
                  "$navigation <A HREF=index.php?id=$course->id>$strmails</A> -> $mail->name", 
                   "", "", true,"" , 
                   navmenu($course, $cm));
+   */
 
   
   
@@ -72,7 +75,7 @@ if(has_capability('mod/mail:audit', $context))
   
      $messages = $DB->get_records("mail_audit_trail",array("courseid"=>$course->id));
      //var_export($course); //die("REPRESSED");
-     $table = new stdClass() or die("Help help");
+     $table = new stdClass();
      $table = new html_table();
      $table->head = array(get_string('sender','mail'), get_string('recipient', 'mail'),get_string('subject', 'mail'), get_string('senton', 'mail'),'&nbsp;') or die("Help help");
      $table->width = '100%';
@@ -117,10 +120,14 @@ if(has_capability('mod/mail:audit', $context))
     $strmails = get_string("modulenameplural", "mail");
     $strmail  = get_string("modulename", "mail");
 
-   print_header("$course->shortname: $mail->name", "$course->fullname",
+   /*print_header("$course->shortname: $mail->name", "$course->fullname",
                  "$navigation <A HREF=index.php?id=$course->id>$strmails</A> -> $mail->name", 
                   "", "", true, update_module_button($cm->id, $course->id, $strmail), 
                   navmenu($course, $cm));
+   */
+      $PAGE->set_cacheable(false);
+      $PAGE->set_url('/mod/mail/audit.php');
+      echo $OUTPUT->header();
 
      
      

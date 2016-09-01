@@ -107,7 +107,7 @@ function mail_print_message($messageid, $course) {
     $options->filter=true;
     $output = format_text($text->message,$text->format,$options,$course->id);
     if($text === false) {
-      	error('Invalid message textid');
+      	print_error('Invalid message textid');
     }
 
     $sender = $DB->get_record('user', array('id'=>$message->fromuser));
@@ -479,7 +479,7 @@ function mail_cache_getuser($id) {
 		return $users[$id];
 	}
 	if (!$user = $DB->get_record('user', array('id'=>$id))) {
-    		error("No such user in this course");
+    		print_error("No such user in this course");
 	}
 	return $users[$user->id] = $user;
 }
