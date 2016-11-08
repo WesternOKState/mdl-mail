@@ -48,6 +48,8 @@ defined('MOODLE_INTERNAL') || die();
  */
 function mail_supports($feature) {
     switch($feature) {
+        case FEATURE_GRADE_HAS_GRADE:   return false;
+        case FEATURE_GRADE_OUTCOMES:    return false;
         case FEATURE_MOD_INTRO:         return false;
         default:                        return null;
     }
@@ -251,7 +253,7 @@ function mail_instant_notify( stdClass $message) {
         $htmlBody = "<head></head><body><div>"
                 . "New Course Email message sent to you from ".fullname($fromuserObj)." in course "
                 . "<a href=\"".$CFG->wwwroot."/course/view.php?id=".$course->id."\">".format_string($course->fullname)."</a>"
-                . "</div</body>";
+                . "</div></body>";
         email_to_user($touserObj,$site->shortname,"NEW Course email!",$textBody,$htmlBody);
     }
     
@@ -377,9 +379,10 @@ function mail_scale_used_anywhere($scaleid) {
  * Needed by grade_update_mod_grades() in lib/gradelib.php
  *
  * @param stdClass $mail instance object with extra cmidnumber and modname property
+ * @param reset grades in the gradebook
  * @return void
  */
-function mail_grade_item_update(stdClass $mail) {
+function mail_grade_item_update(stdClass $mail, $reset = false) {
     global $CFG;
     require_once($CFG->libdir.'/gradelib.php');
 
